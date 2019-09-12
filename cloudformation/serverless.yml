@@ -51,4 +51,13 @@ Resources:
           CONFIG_TABLE_NAME:
             Fn::ImportValue: EventsConfig
 
+  EventSenderLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${Service}-snsSender
+
+  EventLauncherLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/${Service}-launcher
 
