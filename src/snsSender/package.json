@@ -1,0 +1,9 @@
+{
+  "name": "snsSender",
+  "version": "1.0.0",
+  "description": "Polls resources and sends as events on SNS",
+  "dependencies": {
+    "aws4": "^1.8.0",
+    "axios": "^0.18.0"
+  }
+}

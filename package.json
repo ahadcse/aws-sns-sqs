@@ -1,0 +1,38 @@
+{
+  "name": "aws-sns-sqs",
+  "version": "1.0.0",
+  "description": "Polls some information and puts to SNS. Then a lambda picks from SQS and uses the information",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test",
+    "coverage": "make test-coverage",
+    "ci": "make ci",
+    "lint": "make lint",
+    "validate": "make validate_config"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "ajv": "^6.10.2",
+    "aws-sdk": "^2.527.0",
+    "eslint": "^5.6.0",
+    "jest": "^23.1.0",
+    "jest-cli": "^23.1.0",
+    "jest-junit": "^5.1.0",
+    "nock": "^10.0.6"
+  },
+  "jest": {
+    "coverageDirectory": "./test-reports/coverage/",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
+    "reporters": [
+      "default",
+      "jest-junit"
+    ],
+    "testEnvironment": "node"
+  },
+  "jest-junit": {
+    "output": "./test-reports/tests/junit.xml"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aws-sns-sqs/snsMessage.schema.json",
+  "definitions": {
+    "StringMessageAttribute": {
+      "type": "object",
+      "properties": {
+        "DataType": {
+          "type": "string",
+          "enum": [
+            "String"
+          ]
+        },
+        "StringValue": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "title": "SNS Message",
+  "description": "SNS message schema",
+  "type": "object",
+  "properties": {
+    "TopicArn": {
+      "type": "string"
+    },
+    "Message": {
+      "type": "string",
+      "description": "Single message polled and sent to sns"
+    },
+    "MessageAttributes": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "#definitions/StringMessageAttribute",
+          "description": "Two digit resource ID code, for example, 01 (not 1)"
+        },
+        "resource": {
+          "$ref": "#definitions/StringMessageAttribute",
+          "description": "The name of the resource"
+        }
+      },
+      "required": [
+        "userId",
+        "resource"
+      ]
+    }
+  },
+  "required": [
+    "TopicArn",
+    "Message",
+    "MessageAttributes"
+  ]
+}

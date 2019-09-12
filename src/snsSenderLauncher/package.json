@@ -1,0 +1,10 @@
+{
+  "name": "snsSenderLauncher",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Launches sns sender",
+  "dependencies": {
+    "p-map": "^2.0.0"
+  },
+  "devDependencies": {}
+}

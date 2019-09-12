@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: aws-sns-sqs serverless stack
+
+Parameters:
+  Environment:
+    Type: String
+  Service:
+    Type: String
+
+Globals:
+  Function:
+    Runtime: nodejs8.10
+    Timeout: 600
+    Handler: index.handler
+    MemorySize: 512
+
+Resources:
+  # SNS Sender Lambda
+  EventSender:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${Service}-snsSender
+      CodeUri: ../src/snsSender
+      Description: Polls and sends to SNS
+      Policies:
+        - AWSLambdaRole
+        - SNSPublishMessagePolicy:
+            TopicName:
+              Fn::ImportValue: EventsSNSTopicName
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          NUMBER_TO_POLL: '50'
+          EVENTS_TOPIC_ARN:
+            Fn::ImportValue: EventsSNSArn
+
+  # Launcher Lambda
+  EventLauncher:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${Service}-launcher
+      CodeUri: ../src/snsSenderLauncher
+      Description: Launches sns sender for enabled resources
+      Policies:
+        - AWSLambdaRole
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          POLL_LAMBDA_ARN: !GetAtt EventSender.Arn
+          CONFIG_TABLE_NAME:
+            Fn::ImportValue: EventsConfig
+
+

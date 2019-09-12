@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "resources": [
+    {
+      "resource": "Resource1",
+      "type": "whenEntryChanges",
+      "enabled": false
+    },
+    {
+      "resource": "Resource2",
+      "type": "wholeDataSet",
+      "enabled": true,
+      "frequency": 10
+    }
+  ]
+}

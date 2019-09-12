@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: aws-sns-sqs sqs stack. This needs to be deployed after the sns stack is deployed.
+
+Parameters:
+  Service:
+    Type: String
+
+Resources:
+
+  ResourceConfig:
+    Description: Table to save resource configuration
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: resource
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: resource
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      TableName: !Sub ${Service}-config
+
+  EventReceiverQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${Service}-consumer
+      VisibilityTimeout: 305 # Must be longer than lambda timeout
+      ReceiveMessageWaitTimeSeconds: 20
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt EventReceiverDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  EventReceiverDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${Service}-DLQ
+      MessageRetentionPeriod: 604800 # 7 days
+
+  EventReceiverSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt EventReceiverQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+      TopicArn:
+        Fn::ImportValue:
+          !Sub EventsSNSArn
+
+  PolicyForSnsToPublishToSqs:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal: "*"
+          Action:
+            - sqs:*
+          Resource: !GetAtt EventReceiverQueue.Arn
+          Condition:
+            ArnEquals:
+              aws:SourceArn:
+                Fn::ImportValue:
+                  !Sub EventsSNSArn
+      Queues:
+        - !Ref EventReceiverQueue
+
+Outputs:
+  EventReceiverQueueUrl:
+    Description: URL of the queue which receives event
+    Value: !Ref EventReceiverQueue
+    Export:
+      Name: !Sub EventReceiverQueueUrl
+
+  EventReceiverQueueArn:
+    Description: Event receiver queue Arn
+    Value: !GetAtt EventReceiverQueue.Arn
+    Export:
+      Name: !Sub EventReceiverQueueArn
+
+  ResourceConfigTable:
+    Description: Resource configuration table
+    Value: !Ref ResourceConfig
+    Export:
+      Name: ResourceConfig

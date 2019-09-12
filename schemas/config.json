@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aws-sns-sqs/config.schema.json",
+  "title": "ResourceConfig",
+  "description": "Config for SNS sender",
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "description": "Resource to poll",
+            "type": "string"
+          },
+          "type": {
+            "description": "Type of polling",
+            "type": "string",
+            "enum": [
+              "whenEntryChanges",
+              "wholeDataSet"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "rate": {
+            "type": "number",
+            "description": "Frequency of polling. Allowed values a 1, 10 or 60 minutes",
+            "enum": [
+              1,
+              10,
+              60
+            ]
+          }
+        },
+        "required": [
+          "resource",
+          "type",
+          "enabled"
+        ]
+      }
+    }
+  },
+  "required": [
+    "resources",
+    "enabled"
+  ],
+  "additionalProperties": false,
+  "minItems": 1,
+  "uniqueItems": true
+}

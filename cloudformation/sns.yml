@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: aws-sns-sqs sns and DynamoDB stack. This needs to be deployed first.
+
+Parameters:
+  Service:
+    Type: String
+
+Resources:
+
+  EventsSNS:
+    Description: Configuration will be published there
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${Service}
+      TopicName: !Sub ${Service}
+
+Outputs:
+  EventsSNSTopicArn:
+    Description: Event SNS Topic Arn
+    Value: !Ref EventsSNS
+    Export:
+      Name: EventsSNSArn
+
+  EventsSNSTopicName:
+    Description: Nav Event SNS Topic Name
+    Value: !GetAtt EventsSNS.TopicName
+    Export:
+      Name: EventsSNSTopicName
