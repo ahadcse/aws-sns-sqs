@@ -16,8 +16,54 @@ Globals:
     MemorySize: 512
 
 Resources:
-  # SNS Sender Lambda
+
+  # Event
+  EventLauncherRule01:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: 'Trigger PollerLambda'
+      ScheduleExpression: 'rate(1 minute)'
+      State: 'ENABLED'
+      Targets:
+        - Arn: !GetAtt EventLauncher.Arn
+          Id: event-launcher-rule-01
+          Input: |
+            {
+              "frequency": 1
+            }
+
+  EventLauncherRule10:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: 'Trigger PollerLambda'
+      ScheduleExpression: 'rate(10 minutes)'
+      State: 'ENABLED'
+      Targets:
+        - Arn: !GetAtt EventLauncher.Arn
+          Id: event-launcher-rule-10
+          Input: |
+            {
+              "frequency": 10
+            }
+
+  PermissionForEventToInvokeLambda01:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref EventLauncher
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt EventLauncherRule01.Arn
+
+  PermissionForEventToInvokeLambda10:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref EventLauncher
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt EventLauncherRule10.Arn
+
   EventSender:
+    Description: Sends configs to SNS
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${Service}-snsSender
@@ -35,8 +81,8 @@ Resources:
           EVENTS_TOPIC_ARN:
             Fn::ImportValue: EventsSNSArn
 
-  # Launcher Lambda
   EventLauncher:
+    Description: Launches Lambda/s based on config from DynamoDB
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${Service}-launcher
@@ -44,12 +90,15 @@ Resources:
       Description: Launches sns sender for enabled resources
       Policies:
         - AWSLambdaRole
+        - DynamoDBReadPolicy:
+            TableName:
+              Fn::ImportValue: ResourceConfig
       Environment:
         Variables:
           ENVIRONMENT: !Ref Environment
           POLL_LAMBDA_ARN: !GetAtt EventSender.Arn
           CONFIG_TABLE_NAME:
-            Fn::ImportValue: EventsConfig
+            Fn::ImportValue: ResourceConfig
 
   EventSenderLogGroup:
     Type: AWS::Logs::LogGroup

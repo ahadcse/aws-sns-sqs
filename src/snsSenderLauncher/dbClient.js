@@ -1,13 +1,13 @@
 const { CONFIG_TABLE_NAME } = process.env
 const documentClient = new (require('aws-sdk/clients/dynamodb')).DocumentClient()
 
-const getEnabledTargets = async (rate, lastEvaluatedKey, accumulatedResults = []) => {
+const getEnabledConfigs = async (frequency, lastEvaluatedKey, accumulatedResults = []) => {
   const params = {
     TableName: CONFIG_TABLE_NAME,
-    FilterExpression: 'enabled = :enabled AND rate = :rate',
+    FilterExpression: 'enabled = :enabled AND frequency = :frequency',
     ExpressionAttributeValues: {
       ':enabled': true,
-      ':rate': rate
+      ':frequency': frequency
     }
   }
 
@@ -19,12 +19,12 @@ const getEnabledTargets = async (rate, lastEvaluatedKey, accumulatedResults = []
   const totalResults = accumulatedResults.concat(result.Items)
 
   if (result.LastEvaluatedKey) {
-    return getEnabledTargets(result.LastEvaluatedKey, totalResults)
+    return getEnabledConfigs(result.LastEvaluatedKey, totalResults)
   }
 
   return totalResults
 }
 
 module.exports = {
-  getEnabledTargets
+  getEnabledConfigs
 }

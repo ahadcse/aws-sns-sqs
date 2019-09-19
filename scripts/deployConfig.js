@@ -8,7 +8,7 @@ const documentClient = new (require('aws-sdk/clients/dynamodb')).DocumentClient(
 const env = process.env.ENVIRONMENT || 'dev'
 const TableName = process.argv[3] ? process.argv[3] : 'aws-sns-sqs-config'
 
-const getTargetsFromDB = async (lastEvaluatedKey, accumulatedResults = []) => {
+const getConfigFromDB = async (lastEvaluatedKey, accumulatedResults = []) => {
   const params = {
     TableName
   }
@@ -21,14 +21,14 @@ const getTargetsFromDB = async (lastEvaluatedKey, accumulatedResults = []) => {
   const totalResults = accumulatedResults.concat(result.Items)
 
   if (result.LastEvaluatedKey) {
-    return getTargetsFromDB(result.LastEvaluatedKey, totalResults)
+    return getConfigFromDB(result.LastEvaluatedKey, totalResults)
   }
 
   return totalResults
 }
 
-const deleteFromDB = async (targets) => {
-  for (const { userId, resource } of targets) {
+const deleteFromDB = async (configs) => {
+  for (const { userId, resource } of configs) {
     const params = {
       TableName,
       Key: {
@@ -46,7 +46,7 @@ const putConfig = async () => {
     const config = require(`../config/${env}/${file}`)
     const userId = file.match(/([\d]{2}).json/)[1]
     const userIsDisabled = config.enabled === false
-    console.log(`Putting config for user: ${userId}`)
+    console.log(`Deploying config for user: ${userId}`)
     for (const { resource, type, enabled, frequency } of config.resources) {
       const scheduledFrequency = (frequency === 10 || frequency === 60) ? frequency : 1
       const params = {
@@ -65,14 +65,14 @@ const putConfig = async () => {
 }
 
 const deployConfig = async () => {
-  const oldTargets = await getTargetsFromDB()
-  await deleteFromDB(oldTargets)
+  const oldConfigs = await getConfigFromDB()
+  await deleteFromDB(oldConfigs)
   await putConfig()
 }
 
 deployConfig()
   .then(() => {
-    console.log('Successfully put config')
+    console.log('Config/s deployed successfully')
   })
   .catch((error) => {
     console.log(error)

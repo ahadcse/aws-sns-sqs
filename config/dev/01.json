@@ -10,7 +10,7 @@
       "resource": "Resource2",
       "type": "wholeDataSet",
       "enabled": true,
-      "frequency": 10
+      "frequency": 1
     }
   ]
 }

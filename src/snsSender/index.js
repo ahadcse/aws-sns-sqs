@@ -4,8 +4,10 @@ const { sendSNS } = require('./snsClient')
 
 const handler = async event => {
   console.log('Event that will be sent to sns', { event })
-  if(!JSON.parse(event)) {
-     return Promise.reject('Event cannot be parsed')
+  try {
+    JSON.parse(event)
+  } catch (e) {
+    throw new Error('Event cannot be parsed')
   }
   try {
     await sendSNS(event)

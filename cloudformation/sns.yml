@@ -1,8 +1,10 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: aws-sns-sqs sns and DynamoDB stack. This needs to be deployed first.
+Description: aws-sns-sqs sns stack. This needs to be deployed first.
 
 Parameters:
   Service:
+    Type: String
+  Environment:
     Type: String
 
 Resources:
@@ -13,6 +15,12 @@ Resources:
     Properties:
       DisplayName: !Sub ${Service}
       TopicName: !Sub ${Service}
+
+  ArtifactoryBucket:
+    Description: Artifactory bucket
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${Service}-artifactory
 
 Outputs:
   EventsSNSTopicArn:
@@ -26,3 +34,9 @@ Outputs:
     Value: !GetAtt EventsSNS.TopicName
     Export:
       Name: EventsSNSTopicName
+
+  ArtifactoryBucketName:
+    Description: Place where artifactory will be created for this project
+    Value: !Ref ArtifactoryBucket
+    Export:
+      Name: !Sub ArtifactoryBucket

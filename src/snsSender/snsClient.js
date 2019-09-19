@@ -1,18 +1,17 @@
 const sns = new (require('aws-sdk/clients/sns'))()
 
-const sendSNS = (id, resource, payload) => {
-  const resourceNoQs = resource.split('?')[0] // Remove query string if any
+const sendSNS = (event) => {
   const params = {
     TopicArn: process.env.EVENTS_TOPIC_ARN,
-    Message: JSON.stringify(payload),
+    Message: JSON.stringify(event),
     MessageAttributes: {
-      companyId: {
+      userId: {
         DataType: 'String',
-        StringValue: id
+        StringValue: event.userId
       },
       resource: {
         DataType: 'String',
-        StringValue: resourceNoQs
+        StringValue: event.resource
       }
     }
   }

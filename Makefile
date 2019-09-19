@@ -5,6 +5,8 @@ SERVICE ?= aws-sns-sqs
 AWS_REGION ?= eu-west-1
 BITBUCKET_BUILD_NUMBER ?= localbuild
 
+# This S3 bucket should be available for the code to be deployed
+# TODO: Create this bucket from Cloudformation
 ARTIFACTS_BUCKET:=artifactory-$(ENVIRONMENT)
 ARTIFACTS_PREFIX:=$(SERVICE)
 
@@ -49,8 +51,9 @@ deploy_sqs:
 
 .PHONY: deploy_serverless
 deploy_serverless:
-	@echo "\n----- Deploying serverless stack -----\n"
+	@echo "\n----- Deploying serverless stack: START -----\n"
 	$(call cfn-deploy,serverless)
+	@echo "\n----- Deploying serverless stack: DONE -----\n"
 
 cfn-deploy = $(call cfn-package,${1}) && \
 	aws cloudformation deploy \
