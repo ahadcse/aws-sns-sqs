@@ -29,13 +29,13 @@ Outputs:
     Export:
       Name: EventsSNSArn
 
-  EventsSNSTopicName:
+  EventsSNSTopic:
     Description: Nav Event SNS Topic Name
     Value: !GetAtt EventsSNS.TopicName
     Export:
-      Name: EventsSNSTopicName
+      Name: EventsSNSTopic
 
-  ArtifactoryBucketName:
+  ArtifactoryBucket:
     Description: Place where artifactory will be created for this project
     Value: !Ref ArtifactoryBucket
     Export:
