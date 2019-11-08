@@ -1,10 +1,13 @@
-#### AWS SNS SQS
+# AWS SNS SQS
 
 Send an event to a lambda launcher. Then that launcher will trigger another lambda which put things to 
 SNS. A SQS is subscribed to it. which will be populated as soon as there is a message to SNS.
 
+## Architecture
+![Stack architecture](aws-sns-sqs.png)
 
-### Deployment:
+
+## Deployment:
 
 1. make deploy_sns
 2. make deploy_sqs
